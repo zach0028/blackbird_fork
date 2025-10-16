@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}Blackbird UI{% endblock %}
+
+{% block content %}
+  <form method="post" class="form-grid">
+    <div class="field">
+      <label>What do you want to search?</label>
+      <div class="options">
+        <label>
+          <input type="radio" name="search_type" value="username" {% if form_state.search_type != 'email' %}checked{% endif %} />
+          Username
+        </label>
+        <label>
+          <input type="radio" name="search_type" value="email" {% if form_state.search_type == 'email' %}checked{% endif %} />
+          Email
+        </label>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="query">Value</label>
+      <input
+        id="query"
+        name="query"
+        type="text"
+        placeholder="e.g. johndoe or johndoe@example.com"
+        value="{{ form_state.query }}"
+        required
+      />
+    </div>
+
+    <div class="field">
+      <label for="filter">Optional filters</label>
+      <input
+        id="filter"
+        name="filter"
+        type="text"
+        placeholder='Example: cat=social and e_code=200'
+        value="{{ form_state.filter }}"
+      />
+      <small style="color: var(--muted);">Filters only apply to username searches.</small>
+    </div>
+
+    <div class="options">
+      <label>
+        <input type="checkbox" name="include_nsfw" {% if form_state.include_nsfw %}checked{% endif %} />
+        Include NSFW sources
+      </label>
+      <label>
+        <input type="checkbox" name="verbose" {% if form_state.verbose %}checked{% endif %} />
+        Verbose log
+      </label>
+    </div>
+
+    <div>
+      <button type="submit" class="btn">🚀 Launch search</button>
+    </div>
+  </form>
+
+  {% if outcome %}
+    <div class="results">
+      {% if outcome.error %}
+        <div class="alert error">{{ outcome.error }}</div>
+      {% elif outcome.accounts %}
+        <div class="alert success">
+          Found {{ outcome.accounts|length }} potential matches for {{ outcome.query }}.
+        </div>
+
+        {% if outcome.elapsed %}
+          <p style="color: var(--muted);">Completed in {{ '%.2f'|format(outcome.elapsed) }} seconds.</p>
+        {% endif %}
+
+        <div>
+          <h2>Matches</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Site</th>
+                <th>URL</th>
+                <th>Category</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for account in outcome.accounts %}
+                <tr>
+                  <td>{{ loop.index }}</td>
+                  <td>{{ account.name }}</td>
+                  <td><a href="{{ account.url }}" target="_blank" rel="noopener">{{ account.url }}</a></td>
+                  <td>{{ account.category }}</td>
+                </tr>
+                {% if account.metadata %}
+                  <tr>
+                    <td></td>
+                    <td colspan="3">
+                      <div class="metadata">
+                        {% for item in account.metadata %}
+                          <div>
+                            <strong>{{ item.name }}:</strong>
+                            {% if item.value is sequence and item.value is not string %}
+                              {{ item.value | join(', ') }}
+                            {% else %}
+                              {{ item.value }}
+                            {% endif %}
+                          </div>
+                        {% endfor %}
+                      </div>
+                    </td>
+                  </tr>
+                {% endif %}
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="alert">No results were returned for {{ outcome.query }}.</div>
+      {% endif %}
+
+      {% if outcome.log %}
+        <details class="log">
+          <summary>Execution log</summary>
+          <pre>{{ outcome.log }}</pre>
+        </details>
+      {% endif %}
+    </div>
+  {% endif %}
+{% endblock %}

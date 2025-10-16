@@ -33,7 +33,7 @@ python blackbird.py --username johndoe
 **Search by email**
 
 ```bash
-python blackbird.py --email johndoe@example.com 
+python blackbird.py --email johndoe@example.com
 ```
 
 **Export results to PDF**
@@ -41,6 +41,20 @@ python blackbird.py --email johndoe@example.com
 ```bash
 python blackbird.py --email  --pdf
 ```
+
+### Web interface (optional)
+
+Prefer pointing and clicking? Launch the bundled Flask application to run
+Blackbird from your browser:
+
+```bash
+pip install -r requirements.txt
+python app.py
+```
+
+Then visit [http://127.0.0.1:5000](http://127.0.0.1:5000) to trigger username or
+email lookups, review the execution log, and inspect metadata without leaving
+the UI.
 
 ##  ✨ AI (Free)
 Blackbird integrates an AI engine that analyzes the sites where a username or email is found and returns a behavioral and technical profile of the user — helping you understand more, with less effort.
